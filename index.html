@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>期末前夜</title><style>body{margin:0}</style></head><body>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one narrow column at night; evidence appears as paper slips under a sticky case bar. Lock 2 widens into a puzzle table. */
+:root{
+  --night:#121823; --desk:#1b2330; --desk2:#232d3d; --line:#3a4759;
+  --fg:#e7eaf0; --muted:#a3aec0; --lamp:#f3b443; --lamp-ink:#2a1d05;
+  --paper:#efe8d8; --paper-edge:#d9cfb9; --ink:#232a35; --ink-soft:#5b6372;
+  --alarm:#ff7a6a; --ok:#73d39c;
+  --f-display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--night);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  background-image:radial-gradient(ellipse 80% 40% at 50% 0%, #f3b44314, transparent 70%);min-height:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--desk)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--desk);border-bottom:1px solid var(--line);
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar-in{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.case{font-family:var(--f-display);font-weight:900;font-size:18px;letter-spacing:.08em}
+.team{color:var(--muted);font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.locks{display:flex;gap:6px}
+.lk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--muted);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--muted)}
+.lk.on{border-color:var(--lamp);color:var(--lamp)}
+.lk.done{background:var(--ok);border-color:var(--ok);color:#0d2617}
+button.lk{padding:0;background:transparent;cursor:pointer}button.lk.done{background:var(--ok)}
+.lk.cur{box-shadow:0 0 0 2px var(--night),0 0 0 4px var(--fg)}
+.lvnav{display:flex;gap:8px;flex-wrap:wrap}
+.lvnav button,.lvnav span{font:500 13px var(--f-body);padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--fg)}
+.lvnav button:hover{border-color:var(--lamp)}
+.lvnav button.cur{background:var(--lamp);border-color:var(--lamp);color:var(--lamp-ink);font-weight:700}
+.lvnav span{color:var(--muted);opacity:.55;border-style:dashed}
+.dq{font:700 12px var(--f-mono);letter-spacing:.12em;color:var(--lamp);margin-top:4px}
+.solved{border-color:var(--ok)}.solved label{color:var(--ok)}
+.clock{font:700 20px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--lamp);min-width:76px;text-align:right}
+.clock.over{color:var(--alarm)}
+main{max-width:760px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--f-display);font-weight:900;font-size:clamp(40px,11vw,64px);line-height:1.1;letter-spacing:.06em;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:26px;margin:0;letter-spacing:.04em;text-wrap:balance}
+.eyebrow{font:700 12px var(--f-mono);letter-spacing:.18em;color:var(--lamp);text-transform:uppercase}
+p{margin:0}
+.story{max-width:62ch}
+.story em{font-style:normal;color:var(--lamp)}
+.muted{color:var(--muted)}
+.paper{background:var(--paper);color:var(--ink);border-radius:2px;padding:20px;box-shadow:0 1px 0 var(--paper-edge),0 10px 30px #0006;position:relative}
+.paper .tag{position:absolute;top:-10px;left:16px;background:var(--lamp);color:var(--lamp-ink);font:700 11px var(--f-mono);letter-spacing:.14em;padding:2px 8px}
+.paper h3{font-family:var(--f-display);font-size:17px;margin:4px 0 10px}
+.paper ol{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+.paper .small{font-size:14px;color:var(--ink-soft)}
+.letter{font-family:var(--f-display);font-size:19px;line-height:1.75}
+.letter .sign{display:block;text-align:right;font-family:var(--f-body);font-size:14px;color:var(--ink-soft);margin-top:8px}
+.quote{border-left:3px solid var(--ink-soft);padding-left:12px}
+.quote b{display:block;font-size:13px;color:var(--ink-soft)}
+.log{font:13px/1.65 var(--f-mono);background:#fff;color:#1c222b;padding:10px 12px;border:1px dashed var(--ink-soft);white-space:pre-wrap;margin-top:8px;overflow-wrap:anywhere}
+.fp{border-collapse:collapse;font-size:14px;width:100%;color:var(--ink)}
+.fp th,.fp td{border:1px solid #b9ae95;padding:6px 10px;text-align:left}
+.fp th{background:#e3dac6;width:3.2em}
+.stack{display:flex;flex-direction:column;gap:16px}
+.cipher{font:700 clamp(16px,4.6vw,22px) var(--f-mono);letter-spacing:.06em;word-break:break-all;background:#fff;color:#111;padding:14px;border:1px dashed var(--ink-soft)}
+.answer{background:var(--desk);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.answer label{font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+input{font:500 18px var(--f-body);background:var(--night);color:var(--fg);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0;flex:1 1 140px}
+input:focus,button:focus-visible{outline:2px solid var(--lamp);outline-offset:2px}
+button{font:700 16px var(--f-body);border-radius:8px;padding:10px 18px;border:0;cursor:pointer}
+.go{background:var(--lamp);color:var(--lamp-ink)}
+.go:hover{filter:brightness(1.08)}
+.ghost{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.ghost:hover{color:var(--fg);border-color:var(--muted)}
+.suspects{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.suspects button{background:var(--desk2);color:var(--fg);border:1.5px solid var(--line);padding:14px}
+.suspects button:hover{border-color:var(--lamp)}
+.msg{font-size:14px;min-height:1.4em}
+.msg.bad{color:var(--alarm)} .msg.good{color:var(--ok)}
+.shake{animation:shake .35s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.hints{display:flex;flex-direction:column;gap:8px}
+.hint{background:#f3b4431a;border:1px solid #f3b44355;border-radius:8px;padding:10px 12px;font-size:15px}
+.hintbtn{align-self:flex-start;font-size:14px;padding:8px 14px}
+details.notes{background:var(--desk);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+details.notes summary{cursor:pointer;font-weight:700;color:var(--lamp)}
+.notes .in{margin-top:10px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.tblwrap{overflow-x:auto}
+.tl{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tl td,.tl th{border-bottom:1px solid var(--line);padding:4px 10px;text-align:left}
+/* logic grid */
+.grid{border-collapse:collapse;font-size:13px;margin-top:4px;color:var(--ink)}
+.grid th,.grid td{border:1px solid #b9ae95;text-align:center;padding:0}
+.grid th{background:#e3dac6;font-weight:700;padding:4px 6px;white-space:nowrap}
+.grid td button{width:38px;height:34px;background:transparent;color:var(--ink);font:700 18px var(--f-body);border-radius:0;padding:0}
+.grid td button:hover{background:#0000000d}
+.grid .sep{border-left:3px solid var(--ink)}
+/* puzzle table */
+.table{background:#2a2219;border-radius:12px;padding:8px;border:1px solid #4a3c2c}
+#board{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.piece{cursor:grab}
+.piece.drag{cursor:grabbing}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.tools button{font-size:13px;padding:6px 12px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:var(--desk);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.stat b{display:block;font:700 26px var(--f-mono);font-variant-numeric:tabular-nums;color:var(--lamp)}
+.stat span{font-size:13px;color:var(--muted)}
+.foot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:16px}
+.foot button{font-size:13px;padding:6px 12px}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rule{background:var(--desk);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px;color:var(--muted)}
+.rule b{display:block;color:var(--fg);font-size:15px}
+
+/* realistic evidence */
+.label{font:700 12px var(--f-mono);letter-spacing:.12em;color:var(--lamp);margin:8px 0 -6px}
+.q{background:var(--desk);border-left-color:var(--lamp);padding:10px 12px;border-radius:0 8px 8px 0;color:var(--fg)}
+.q b{color:var(--muted)}
+.cork{background:#a77d4f;background-image:radial-gradient(#00000022 1px,transparent 1.5px),radial-gradient(#ffffff18 1px,transparent 1.5px);background-size:7px 7px,11px 11px;border:8px solid #6b4a2b;border-radius:6px;padding:22px 14px;display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.notice{background:#fbfaf6;color:#222;font-size:13px;line-height:1.6;padding:16px 14px 10px;width:min(220px,100%);box-shadow:0 3px 8px #0005;position:relative}
+.notice::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:#c0392b;box-shadow:0 2px 2px #0006}
+.notice b{display:block;font-size:14px;margin-bottom:4px;font-family:var(--f-display)}
+.notice span{display:block;text-align:right;color:#666;font-size:12px;margin-top:6px}
+.n1{transform:rotate(-2deg)}.n2{transform:rotate(1.5deg);background:#fffbe0}.n3{transform:rotate(-1deg)}
+.browser{background:#fff;color:#202124;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px #0006;font-size:13px}
+.url{background:#e8eaed;padding:8px 12px;font:12px var(--f-mono);color:#444;display:flex;gap:6px;overflow-wrap:anywhere}
+.page{padding:14px}
+.ptitle{font-weight:700;font-size:15px;color:#1a4c8b;border-bottom:2px solid #1a4c8b;padding-bottom:6px;margin-bottom:8px}
+.adm{border-collapse:collapse;width:100%;color:#202124;font-size:12px}
+.adm th{background:#f1f3f4;text-align:left;padding:6px 8px;color:#555}
+.adm td{border-top:1px solid #e3e3e3;padding:6px 5px;vertical-align:top}.adm th{padding:6px 5px!important;white-space:nowrap}
+.perm{margin-top:10px;font-size:12px;color:#5f6368;background:#f8f9fa;padding:8px;border-radius:6px}
+.slip{background:#fdfcf3;background-image:repeating-linear-gradient(#fdfcf3 0 27px,#b9c8de 27px 28px);color:#1d2a6b;font:17px/28px "Kaiti TC","STKaiti","DFKai-SB",var(--f-display);padding:10px 16px 6px;transform:rotate(-1deg);box-shadow:0 6px 18px #0006;max-width:420px}
+.slip span{display:block;text-align:right}
+.meet{background:#202124;color:#e8eaed;border-radius:10px;overflow:hidden;font-size:13px;box-shadow:0 10px 30px #0006}
+.mhd{padding:8px 12px;border-bottom:1px solid #3c4043}
+.mhd small{display:block;color:#9aa0a6;font-size:11px}
+.rec{color:#ea4335}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+.tile{background:#3c4043;border-radius:8px;aspect-ratio:4/3;position:relative;display:grid;place-items:center}
+.tile span{position:absolute;left:8px;bottom:6px;font-size:12px}
+.av{width:44px;height:44px;border-radius:50%;background:#5f6368;display:grid;place-items:center;font-weight:700}
+.frz .av{filter:blur(1.5px);opacity:.5}
+.warn{position:absolute;inset:auto 6px 30px;background:#000a;border-radius:6px;padding:4px;text-align:center;font-size:11px;color:#fdd663}
+.cc{padding:8px 12px 12px;border-top:1px solid #3c4043}
+.cch{color:#9aa0a6;font-size:11px;margin-bottom:4px}
+.cc p{margin:2px 0}.cc i{font-style:normal;color:#8ab4f8;margin-right:8px;font-family:var(--f-mono)}
+.phones{display:flex;flex-wrap:wrap;gap:16px;justify-content:center}
+.phone{background:#0b0b0d;border-radius:30px;padding:8px;width:min(270px,100%);box-shadow:0 10px 30px #0008;margin:0 auto}
+.scr{border-radius:23px;overflow:hidden;min-height:360px;font-size:13px}
+.sb{display:flex;justify-content:space-between;padding:6px 16px 2px;font:600 11px var(--f-body)}
+.ez{background:#f4f6f8;color:#222}
+.ezh{background:#0a7c86;color:#fff;font-weight:700;padding:10px 14px;margin-top:2px}
+.ezr{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #e2e5e8;background:#fff}
+.ezr small{color:#777}
+.term{background:#0d1117;color:#c9d1d9;border-radius:8px;overflow:hidden;box-shadow:0 10px 30px #0006}
+.tbar{background:#21262d;padding:7px 10px;display:flex;gap:6px;align-items:center;font:11px var(--f-mono);color:#8b949e}
+.tbar i{width:10px;height:10px;border-radius:50%;background:#ff5f56}.tbar i:nth-child(2){background:#ffbd2e}.tbar i:nth-child(3){background:#27c93f}
+.tbar span{margin-left:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.term pre{margin:0;padding:10px 12px;font:12.5px/1.6 var(--f-mono);overflow-x:auto}
+.lock{background:linear-gradient(160deg,#2b3a67,#6a4c93 60%,#c06c84);color:#fff;text-align:center}
+.lt{font:300 56px/1 var(--f-body);margin-top:18px}.ld{font-size:13px;opacity:.85;margin-bottom:22px}
+.nt{background:#ffffffd9;color:#111;text-align:left;margin:0 10px;border-radius:14px;padding:10px 12px;font-size:12.5px}
+.nth{display:flex;justify-content:space-between;color:#555;font-size:11px;margin-bottom:2px}
+.nt b{display:block}
+.line{background:#8cabd9;color:#111}
+.lh{background:#263238;color:#fff;padding:9px 12px;font-weight:700;display:flex;gap:10px}
+.lb{padding:10px 8px;display:flex;flex-direction:column;gap:8px}
+.lm .who{font-size:11px;color:#223;margin-left:4px}
+.lr{display:flex;align-items:flex-end;gap:4px}
+.me .lr{justify-content:flex-end}
+.bb{background:#fff;border-radius:14px;padding:6px 10px;max-width:72%;font-size:13px}
+.me .bb{background:#86d97b}
+.lr i{font-style:normal;font-size:9.5px;color:#334;line-height:1.2;text-align:right}
+@media (max-width:560px){.rules,.stats{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.shake{animation:none}}
+</style>
+
+<header class="bar"><div class="bar-in">
+  <span class="case">期末前夜</span>
+  <span class="team" id="teamLabel">偵探社 · 尚未接案</span>
+  <div class="locks" id="locks" aria-label="關卡進度"></div>
+  <span class="clock" id="clock">40:00</span>
+</div></header>
+
+<main id="app"></main>
+
+<script>
+(function(){
+const LIMIT=40*60, WRONG=30, HINT=60, KEY="qimo-detective-v1";
+const GEO={"pieces":[{"id":"pink","poly":[[0.5,0.1212],[0.43,0],[0,0],[0,1],[0.0793,0.85]],"c":[0.2019,0.3942],"color":"#c48aa3","sym":360},{"id":"blue","poly":[[0.5,0.1212],[0.57,0],[1,0],[1,0.8371],[0.9207,0.85]],"c":[0.7981,0.3617],"color":"#8aa6c8","sym":360},{"id":"yellow","poly":[[0.43,0],[0.57,0],[0.5,0.1212]],"c":[0.5,0.0404],"color":"#d4c84a","sym":120},{"id":"red","poly":[[0,1],[0.0793,0.85],[0.9207,0.85]],"c":[0.3333,0.9],"color":"#8a2525","sym":360},{"id":"orange","poly":[[0,1],[1,1],[1,0.8371]],"c":[0.6667,0.9457],"color":"#b97f2c","sym":360}],"pts":[[0.1394,1.5411,"4"],[0.2596,1.7493,"6"],[0.1394,1.1246,"8"],[0.2596,1.3329,"5"],[0.3798,1.5411,"9"],[0.5,1.7493,"4"],[0.1394,0.7082,"8"],[0.2596,0.9164,"3"],[0.3798,1.1246,"9"],[0.5,1.3329,"7"],[0.6202,1.5411,"1"],[0.7404,1.7493,"0"],[0.1394,0.2918,"2"],[0.2596,0.5,"8"],[0.3798,0.7082,"6"],[0.5,0.9164,"4"],[0.6202,1.1246,"4"],[0.7404,1.3329,"2"],[0.8606,1.5411,"6"],[0.9809,1.7493,"2"],[0.3798,0.2918,"6"],[0.5,0.5,"3"],[0.6202,0.7082,"0"],[0.7404,0.9164,"4"],[0.8606,1.1246,"3"],[0.9809,1.3329,"1"],[1.1011,1.5411,"9"],[1.2213,1.7493,"6"],[0.6202,0.2918,"4"],[0.7404,0.5,"7"],[0.8606,0.7082,"1"],[0.9809,0.9164,"0"],[1.1011,1.1246,"0"],[1.2213,1.3329,"9"],[0.8606,0.2918,"3"],[0.9809,0.5,"1"],[1.1011,0.7082,"4"],[1.2213,0.9164,"7"],[1.1011,0.2918,"8"],[1.2213,0.5,"1"]],"P1":[0.5,0.3295],"W":1.4,"H":1.98};
+const SX=1.36; // sheet offset on the table
+const START={pink:[0.40,1.12,150],blue:[0.58,0.42,330],yellow:[1.08,0.95,60],red:[1.09,1.52,300],orange:[0.58,1.78,30]};
+
+const blank=()=>({screen:"intro",team:"",startAt:0,endAt:0,penalty:0,wrong:0,hints:[0,0,0,0],level:0,view:null,grid:{},pz:null});
+let S=blank();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.screen)return v}catch(e){}return null}
+
+const $=(s,el=document)=>el.querySelector(s);
+const app=$("#app");
+const norm=s=>(s||"").replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/[\s,，、\-]+/g,"");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* clock */
+function used(){const end=S.endAt||Date.now();return S.startAt?Math.floor((end-S.startAt)/1000)+S.penalty:0}
+function fmt(sec){const a=Math.abs(sec);return String(Math.floor(a/60)).padStart(2,"0")+":"+String(a%60).padStart(2,"0")}
+function tick(){const c=$("#clock"),left=LIMIT-used();c.textContent=left>=0?fmt(left):"+"+fmt(left);c.classList.toggle("over",left<0)}
+function header(){
+  $("#teamLabel").textContent=S.team?"偵探社 · "+S.team:"偵探社 · 尚未接案";
+  const cur=curView();
+  $("#locks").innerHTML=[1,2,3,4].map(i=>{const k=i-1,open=S.screen!=="intro"&&k<=S.level&&k<4,cls=(k<S.level?"done":"")+(open&&k===S.level?" on":"")+(cur===k?" cur":"");
+    return open?`<button class="lk ${cls}" data-go="${k}" aria-label="第 ${i} 關">${i}</button>`:`<span class="lk ${cls}" aria-label="第 ${i} 關（未解鎖）">${i}</span>`}).join("");
+  $("#locks").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>goTo(+b.dataset.go));
+  tick();
+}
+setInterval(tick,1000);
+
+/* content */
+const NOTE_TIMELINE=`<b>今晚的刷卡紀錄（第一關推出）</b><div class="tblwrap"><table class="tl"><tr><th>時間</th><th>人</th><th>教室</th></tr>
+<tr><td>21:00</td><td>陳學姊</td><td>512</td></tr><tr><td>21:30</td><td>阿哲</td><td>301</td></tr><tr><td>22:00</td><td>鍾學長</td><td>208</td></tr><tr><td>22:30</td><td>小美</td><td>302</td></tr><tr><td>23:00</td><td>小林</td><td>405</td></tr></table></div>`;
+const NOTICES=`<div class="notice n1"><b>研究生室使用規範</b>離開請關冷氣、關燈。<br>冰箱食物請寫名字，週五統一清空。<span>系辦公室</span></div>
+<div class="notice n2"><b>【公告】列印服務調整</b>期末期間 2F、4F、5F 印表機送修。<br>全館列印請至 3F 302 研究室。<br>卡紙請勿硬拉，隔天找系辦處理。<span>系辦公室 11/16</span></div>
+<div class="notice n3"><b>高等教育統計</b>期末成績將於 11/20 上午 9:00 前上傳，有疑問請洽助教。<span>課程助教群</span></div>`;
+const PEOPLE=["陳學姊","阿哲","鍾學長","小美","小林"], TIMES=["21:00","21:30","22:00","22:30","23:00"], ROOMS=["208","301","302","405","512"];
+
+const LEVELS=[
+ {title:"第一道鎖 · 警衛室",kind:"邏輯推理",
+  story:`調查的第一步，是弄清楚今晚誰在大樓裡。警衛老周去巡邏了，警衛室沒鎖，但放備用鑰匙的鑰匙箱上了一個五位數密碼鎖。鎖上貼著一張便條，是小林的字跡：「<em>我 23:00 進大樓時換了鑰匙箱的密碼。新密碼＝今晚按刷卡順序，每個人去的樓層。</em>」只有認真查過刷卡紀錄的人，才推得出這組數字。便條下面夾著小林從值班筆記抄下來的線索。鑰匙箱裡是各研究室的備用鑰匙，你們需要 405 的那一把。`,
+  body:()=>`<div class="paper"><span class="tag">證物 01 · 小林留下的線索</span><h3>值班筆記（小林抄錄）</h3>
+   <p class="small" style="margin-bottom:10px">五個人在 21:00–23:00 各刷卡一次（每半小時一人），都是去自己平常待的研究室或教室，各去 208、301、302、405、512 其中一間，每間一人。</p>
+   <ol><li>第一個刷卡的人，去的是最高的樓層。</li><li>陳學姊和小林進大樓的時間相隔兩小時。</li><li>去 3 樓的兩個人，進大樓相隔一小時。</li><li>鍾學長去的樓層最低。</li><li>小美比鍾學長晚進大樓。</li><li>阿哲的門牌號碼比小美的小。</li><li>小林比阿哲晚進大樓。</li><li>小林去的樓層比阿哲高。</li></ol></div>
+   <div class="paper"><span class="tag">推理表</span><p class="small" style="margin:6px 0">點格子切換：○ 確定、× 排除、空白。</p>${gridHTML()}</div>`,
+  form:`<label for="a1">鑰匙箱密碼（5 位數字）</label><div class="row"><input id="a1" inputmode="numeric" placeholder="例如 12345" autocomplete="off"><button class="go" data-submit>開鎖</button></div>`,
+  check:()=>norm($("#a1").value)==="53234",
+  solvedText:"鑰匙箱密碼：<b>53234</b>（陳學姊 512、阿哲 301、鍾學長 208、小美 302、小林 405）",
+  hints:["第 2 條和第 7 條合起來，可以確定陳學姊和小林的時間。","陳學姊 21:00、小林 23:00，所以陳學姊在 5 樓。如果小林也在 3 樓，第 8 條還成立嗎？"]},
+ {title:"第二道鎖 · 405 室",kind:"空間轉念",
+  story:`備用鑰匙打開了 405，小林的研究室。嫌疑人平常也會進出這裡，所以小林不敢直接寫下置物櫃密碼。門內側的軟木板上釘著幾張公告；桌上散著 <em>5 片剪開的色紙</em>、一張印滿數字的紙，還壓著一張小林的便條。`,
+  body:()=>`<div class="cork">${NOTICES}</div>
+   <div class="paper"><span class="tag">證物 02 · 小林的便條</span><p class="letter">「黃三角指向4，拼出來的空心三角形加起來是 29，上到下、左到右就是密碼。」<span class="sign">—— 林</span></p></div>
+   <div class="table"><svg id="board" viewBox="-0.04 -0.04 2.84 2.06" role="img" aria-label="桌面：左邊是 5 片色紙，右邊是數字紙"></svg></div>
+   <div class="tools"><span>拖曳移動，點一下旋轉 30°。拼好的紙片會黏在一起。</span><button class="ghost" id="pzReset">把紙片放回原位</button></div>`,
+  form:`<label for="a2">置物櫃密碼（6 位數字）</label><div class="row"><input id="a2" inputmode="numeric" placeholder="六位數字" autocomplete="off"><button class="go" data-submit>開鎖</button></div>`,
+  check:()=>norm($("#a2").value)==="472916",
+  solvedText:"置物櫃密碼：<b>472916</b>",
+  hints:["5 片怎麼拼都拼不出實心的三角形。如果三角形是空出來的那一塊呢？","5 片可以排成一個正方形。整塊拖到數字紙上，讓黃色尖角指著一個 4，再加加看窗口裡的數字是不是 29。紙上不只一個 4。"]},
+ {title:"第三道鎖 · 置物櫃",kind:"符號解碼",
+  story:`405 裡每個研究生都有一格置物櫃，小林那一格打開了。櫃門內側用膠帶貼著一張紙，紙角已經捲起來，看起來貼了好一陣子，上面是一串英文和數字。`,
+  body:()=>`<div class="paper"><span class="tag">證物 03 · 置物櫃裡的紙</span><div class="cipher">ru z;6au4a83vm,6ru,3ap6q96t/6ji32k7</div></div>`,
+  form:`<label for="a3">機房門鎖密碼</label><div class="row"><input id="a3" inputmode="numeric" placeholder="數字" autocomplete="off"><button class="go" data-submit>開鎖</button></div>`,
+  check:()=>norm($("#a3").value)==="207360",
+  solvedText:"解碼：「機房密碼學姊門牌乘我的」→ 512 × 405 ＝ <b>207360</b>",
+  hints:["這張紙是用電腦打出來的。想想你自己打字時，最常出什麼錯？","用注音鍵盤對照：r＝ㄐ、u＝ㄧ、空白＝一聲，第一個字是「機」。解出整句後，要用到調查筆記裡的資料。"]},
+ {title:"第四道鎖 · 機房",kind:"證據推理",
+  story:`機房的門開了。小林一直守在裡面，他沒有開門，是因為不知道門外的人是誰。只有一路解開線索的人，才證明自己是真正的偵探社。他把收集到的證據交給你們：「<em>證據都在這裡。你們是外人，由你們來判斷。</em>」`,
+  body:()=>`<p class="label">證物 04 · 小林電腦上的成績系統</p>
+   <div class="browser"><div class="url"><span>🔒</span>grades.dept.edu.tw/admin/log</div><div class="page">
+    <div class="ptitle">高等教育統計 · 成績異動紀錄</div>
+    <div class="tblwrap"><table class="adm"><tr><th>時間</th><th>帳號</th><th>來源</th><th>登入方式</th><th>動作</th></tr>
+    <tr><td>11/18 17:32</td><td>lin</td><td>405-PC02</td><td>本機</td><td>匯入期末成績 62 筆</td></tr>
+    <tr><td>11/19 19:05</td><td>chen</td><td>140.112.x.x</td><td>遠端 VPN</td><td>查詢成績</td></tr>
+    <tr class="hl"><td>11/19 22:15</td><td>xiaomei</td><td>302-PC03</td><td>本機</td><td>修改成績 1 筆</td></tr>
+    <tr><td>11/19 23:06</td><td>lin</td><td>405-PC02</td><td>本機</td><td>查詢異動紀錄</td></tr></table></div>
+    <div class="perm">具修改權限的帳號：lin（小林）、xiaomei（小美）、chen（陳學姊，已開通遠端登入）</div>
+   </div></div>
+   <p class="label">證物 05 · 警衛的監視器查詢單</p>
+   <div class="slip">監視器調閱 11/19 21:00–23:00<br>5F 走廊：無人離開 5 樓。<br>3F 走廊：鏡頭 11/14 故障，送修中，無畫面。<span>值班警衛 老周</span></div>
+   <p class="label">證物 06 · 證詞與每個人交出的證據</p>
+   <p class="quote q"><b>陳學姊（助教）</b>「22:15 我在 512 改另一門課的期末報告，整晚都沒離開 5 樓。遠端權限是為了在家也能登成績，今晚我沒用。」</p>
+   <p class="quote q"><b>阿哲</b>「22:00 到 22:30 我在 301 跟指導教授視訊，鏡頭一直開著。隔壁 302 好像有人在打字，但我在開會，沒過去看。」</p>
+   <div class="meet"><div class="mhd"><span class="rec">●</span> 論文進度討論　22:02–22:31<small>阿哲的電腦 301-PC01 · 會議錄影</small></div>
+    <div class="tiles"><div class="tile"><div class="av">教</div><span>指導教授</span></div><div class="tile frz"><div class="av">哲</div><div class="warn">⚠ 網路不穩，視訊已暫停<br>22:12 – 22:18</div><span>阿哲 🎤</span></div></div>
+    <div class="cc"><div class="cch">自動字幕紀錄</div><p><i>22:14</i>指導教授：問卷最後回收幾份？</p><p><i>22:15</i>阿哲：有效問卷 214 份，在第三章表 3-2。</p><p><i>22:16</i>指導教授：好，那信度的部分再補一下。</p></div></div>
+   <p class="quote q"><b>小美（助教）</b>「22:15 我還在捷運上，大學站出站後走過來要 6 分鐘，22:30 才刷卡進大樓。我的密碼……貼在螢幕旁邊，我知道不應該。」</p>
+   <div class="phone"><div class="scr ez"><div class="sb"><span>22:41</span><span>●●● 5G ▮</span></div><div class="ezh">悠遊卡 · 交易紀錄</div>
+    <div class="ezr"><span>11/19 22:24<br><small>捷運 大學站 出站</small></span><b>−20</b></div>
+    <div class="ezr"><span>11/19 21:52<br><small>捷運 板橋站 進站</small></span><b>0</b></div>
+    <div class="ezr"><span>11/19 18:40<br><small>超商 7-ELEVEN</small></span><b>−65</b></div></div></div>
+   <p class="quote q"><b>鍾學長</b>「22:00 進來之後，我就一直在 208 跑模型，完全沒離開過。我證據都給你們，自己看。」</p>
+   <div class="term"><div class="tbar"><i></i><i></i><i></i><span>chung@208-PC11: ~/thesis</span></div><pre>$ python train.py --epochs 5
+[22:01:40] training started
+[22:05:03] epoch 1/5  loss 0.842
+[22:09:47] epoch 2/5  loss 0.613
+[22:14:22] epoch 3/5  loss 0.507
+[22:19:05] epoch 4/5  loss 0.466
+[22:24:38] epoch 5/5  loss 0.441
+[22:24:39] model saved.</pre></div>
+   <div class="phones"><div class="phone"><div class="scr lock"><div class="sb"><span></span><span>●●● 5G ▮</span></div><div class="lt">22:15</div><div class="ld">11月19日 星期四</div>
+    <div class="nt"><div class="nth"><span>🛵 外送</span><span>現在</span></div><b>餐點已送達</b>無接觸配送：已放在「208 教室門口」。祝您用餐愉快！</div></div></div>
+   <div class="phone"><div class="scr line"><div class="lh"><span>‹</span>實驗室 🧪 (6)</div><div class="lb">
+    <div class="lm"><span class="who">學妹</span><div class="lr"><span class="bb">學長模型跑完了嗎</span><i>22:10</i></div></div>
+    <div class="lm me"><div class="lr"><i>已讀 3<br>22:11</i><span class="bb">還在跑，epoch 2</span></div></div>
+    <div class="lm"><span class="who">阿凱</span><div class="lr"><span class="bb">有人要宵夜嗎 🍜</span><i>22:13</i></div></div>
+    <div class="lm me"><div class="lr"><i>已讀 4<br>22:14</i><span class="bb">我叫了，等等到</span></div></div>
+    <div class="lm me"><div class="lr"><i>已讀 4<br>22:16</i><span class="bb">靠，印表機又卡紙了</span></div></div>
+    <div class="lm"><span class="who">學妹</span><div class="lr"><span class="bb">哈哈哈又來 🤣</span><i>22:17</i></div></div>
+    <div class="lm me"><div class="lr"><i>已讀 4<br>22:19</i><span class="bb">終於弄出來了，紙夾在最裡面 😤</span></div></div>
+    <div class="lm"><span class="who">阿凱</span><div class="lr"><span class="bb">明天幾點 meeting</span><i>22:21</i></div></div>
+   </div></div></div></div>`,
+  form:`<label>誰改了成績？（選錯 +60 秒）</label><div class="suspects">${PEOPLE.filter(p=>p!=="小林").map(p=>`<button data-pick="${p}">${p}</button>`).join("")}</div>`,
+  pick:"鍾學長",
+  solvedText:"改成績的人：<b>鍾學長</b>",
+  hints:["每個人都有可疑的地方，但多半能被另一份證物排除。陳學姊能遠端登入，這次是怎麼登入的？阿哲的畫面凍結了，那段時間他在做什麼？","鍾學長的三份證據，各自證明的到底是什麼？程式自己會跑、外送放在門口、訊息在哪都能傳。他在群組說了什麼？那件事可能在哪裡發生？前面的關卡看過相關的東西。"]}
+];
+
+/* logic grid */
+function gridHTML(){
+  const cell=(p,k)=>{const v=S.grid[p+"|"+k]||"";return `<button data-cell="${p}|${k}" aria-label="${p} ${k}">${v}</button>`};
+  return `<div class="tblwrap"><table class="grid"><tr><th></th>${TIMES.map(t=>`<th>${t}</th>`).join("")}${ROOMS.map((r,i)=>`<th${i===0?' class="sep"':''}>${r}</th>`).join("")}</tr>
+   ${PEOPLE.map(p=>`<tr><th>${p}</th>${TIMES.map(t=>`<td>${cell(p,t)}</td>`).join("")}${ROOMS.map((r,i)=>`<td${i===0?' class="sep"':''}>${cell(p,r)}</td>`).join("")}</tr>`).join("")}</table></div>`;
+}
+function wireGrid(){
+  app.querySelectorAll("[data-cell]").forEach(b=>b.onclick=()=>{
+    const k=b.dataset.cell, cur=S.grid[k]||"", nxt=cur===""?"○":cur==="○"?"×":"";
+    if(nxt)S.grid[k]=nxt; else delete S.grid[k];
+    b.textContent=nxt; save();
+  });
+}
+
+/* screens */
+function curView(){if(S.screen==="intro")return -1;if(S.view!=null&&S.view<=S.level&&S.view<4)return S.view;return S.screen==="end"?4:S.level}
+function goTo(k){S.view=(k>=4||(S.screen!=="end"&&k===S.level))?null:k;save();render();scrollTo(0,0)}
+function navHTML(){
+  const cur=curView(),n=S.screen==="end"?5:S.level+1,names=["第一關","第二關","第三關","第四關","結案"];
+  return `<nav class="lvnav" aria-label="關卡切換">${names.map((t,k)=>k<n?`<button class="${k===cur?"cur":""}" data-go="${k}">${k<S.level&&k<4?"✓ ":""}${t}</button>`:(k<4?`<span>🔒 ${t}</span>`:"")).join("")}</nav>`;
+}
+function wireNav(){app.querySelectorAll(".lvnav [data-go]").forEach(b=>b.onclick=()=>goTo(+b.dataset.go))}
+function render(){header();if(S.screen==="intro")return renderIntro();const v=curView();if(v===4)return renderEnd();renderLevel(v)}
+
+function renderIntro(){
+  app.innerHTML=`
+  <span class="eyebrow">Case file · 23:50</span>
+  <h1>期末前夜</h1>
+  <p class="story">明天早上九點是期末成績上傳的截止時間。今晚 23:50，你們的<em>偵探社信箱</em>收到一封委託：</p>
+  <div class="paper"><span class="tag">偵探社信箱 · 23:50</span><p class="letter">「成績被動過了，我守在機房。當晚在系館的都是我身邊的人，我誰都不能信。線索留在系館，請你們來協助我。」<span class="sign">—— 委託人 助教小林</span></p></div>
+  <p class="story">小林擔心帳號早已被盯上，不敢用手機傳任何密碼。你們是中立的第三方，從一樓警衛室開始，一路開鎖到機房，找出是誰動了成績。</p>
+  <div class="rules">
+    <div class="rule"><b>40 分鐘</b>時間到不會結束，但會開始計算超時。</div>
+    <div class="rule"><b>答錯 +30 秒</b>最後一關選錯 +60 秒。</div>
+    <div class="rule"><b>提示 +60 秒</b>每關兩個提示，卡關再用。</div>
+  </div>
+  <div class="answer"><label for="teamName">偵探社小組名稱</label>
+    <div class="row"><input id="teamName" placeholder="例如：第三組" maxlength="20" autocomplete="off"><button class="go" id="startBtn">接下委託</button></div>
+    <p class="msg bad" id="introMsg"></p></div>`;
+  $("#startBtn").onclick=()=>{const t=$("#teamName").value.trim();if(!t){$("#introMsg").textContent="請先輸入小組名稱。";return}
+    S=blank();S.team=t;S.screen="level";S.startAt=Date.now();save();render();scrollTo(0,0)};
+  $("#teamName").onkeydown=e=>{if(e.key==="Enter")$("#startBtn").click()};
+}
+
+function notesHTML(){
+  if(S.level<1)return"";
+  return `<details class="notes"${S.level>=2?" open":""}><summary>調查筆記</summary><div class="in">${NOTE_TIMELINE}</div></details>`;
+}
+
+function renderLevel(idx){
+  const L=LEVELS[idx],solved=idx<S.level,h=S.hints[idx];
+  app.innerHTML=`
+  ${navHTML()}
+  <span class="eyebrow">Lock ${idx+1} / 4 · ${L.kind}${solved?" · 已破關":""}</span>
+  <h2>${L.title}</h2>
+  <p class="story">${L.story}</p>
+  ${notesHTML()}
+  <div class="stack">${L.body()}</div>
+  ${solved?`<div class="answer solved"><label>✓ 這道鎖已經打開了</label><p>${L.solvedText}</p>
+    <div class="row"><button class="go" data-go="${S.screen==="end"?4:S.level}">${S.screen==="end"?"回到結案頁":"回到目前的關卡"}</button></div></div>`
+  :`<div class="answer" id="ansBox">${L.form}<p class="msg" id="msg" aria-live="polite"></p></div>`}
+  <div class="hints">${L.hints.slice(0,h).map((t,i)=>`<div class="hint"><b>提示 ${i+1}</b>　${t}</div>`).join("")}
+    ${!solved&&h<2?`<button class="ghost hintbtn" id="hintBtn">看提示 ${h+1}（+60 秒）</button>`:""}</div>
+  ${footHTML()}`;
+  const hb=$("#hintBtn");if(hb)hb.onclick=()=>{S.hints[idx]++;S.penalty+=HINT;save();renderLevel(idx);tick()};
+  wireReset();wireNav();
+  app.querySelectorAll(".solved [data-go]").forEach(b=>b.onclick=()=>goTo(+b.dataset.go));
+  if(idx===0)wireGrid();
+  if(idx===1)initPuzzle();
+  const sub=$("[data-submit]");
+  if(sub){sub.onclick=()=>submit();app.querySelectorAll("#ansBox input").forEach(i=>i.onkeydown=e=>{if(e.key==="Enter")submit()})}
+  app.querySelectorAll("[data-pick]").forEach(b=>b.onclick=()=>submit(b.dataset.pick));
+}
+
+function submit(pick){
+  const L=LEVELS[S.level],ok=L.pick?pick===L.pick:L.check(),msg=$("#msg"),box=$("#ansBox");
+  if(ok){
+    msg.className="msg good";msg.textContent="喀嚓，鎖開了。";
+    S.level++;S.view=null;if(S.level>=4){S.screen="end";S.endAt=Date.now()}
+    save();setTimeout(()=>{render();scrollTo(0,0)},800);
+  }else{
+    const p=L.pick?60:WRONG;S.penalty+=p;S.wrong++;save();tick();
+    msg.className="msg bad";msg.textContent=L.pick?`不是${pick}。再看一次證據（+60 秒）。`:"密碼錯誤，再想想（+30 秒）。";
+    box.classList.remove("shake");void box.offsetWidth;box.classList.add("shake");
+  }
+}
+
+function footHTML(){return `<div class="foot"><span>主持人用</span><button class="ghost" id="resetBtn">重新開始</button><span id="resetAsk" hidden>確定清除進度？ <button class="go" id="resetYes">清除</button> <button class="ghost" id="resetNo">取消</button></span></div>`}
+function wireReset(){
+  $("#resetBtn").onclick=()=>{$("#resetAsk").hidden=false;$("#resetBtn").hidden=true};
+  $("#resetNo").onclick=()=>{$("#resetAsk").hidden=true;$("#resetBtn").hidden=false};
+  $("#resetYes").onclick=()=>{S=blank();save();render();scrollTo(0,0)};
+}
+
+function renderEnd(){
+  const t=used(),hints=S.hints.reduce((a,b)=>a+b,0);
+  app.innerHTML=`
+  ${navHTML()}
+  <span class="eyebrow">Case closed</span>
+  <h1>結案</h1>
+  <div class="stats">
+    <div class="stat"><b>${fmt(t)}</b><span>總時間（含罰時）</span></div>
+    <div class="stat"><b>${hints}</b><span>使用提示</span></div>
+    <div class="stat"><b>${S.wrong}</b><span>答錯次數</span></div>
+  </div>
+  <p class="story"><b>${esc(S.team)}</b>，請把這個畫面拿給主持人登記。</p>
+  <div class="paper"><span class="tag">真相</span><div class="stack" style="margin-top:6px">
+    <p>22:08，鍾學長讓模型繼續跑，悄悄離開 208，上樓走進還沒有人的 302。小美的密碼就貼在螢幕旁，22:15 他用她的帳號登入成績系統，把自己「高等教育統計」的成績改成及格。選小美的電腦是故意的：萬一被發現，大家會先懷疑她。他順手想印一份改好的成績單留底，偏偏卡紙，他下意識在群組抱怨了一句。期末期間全館只剩 302 能列印，這句話成了唯一的破綻。22:24 他回到 208，拿起門口的外送，假裝一直在跑模型。</p>
+    <p>阿哲的視訊只是網路不穩，22:15 他還在 301 的電腦前回答教授的問題。陳學姊雖然開通了遠端登入，但這次的修改是在 302 本機操作，她整晚都沒離開 5 樓。</p>
+    <p>23:00，小林到 405 做例行備份，發現成績被改。他立刻鎖住伺服器、守在機房，卻發現當晚在系館的全是自己身邊的人，只好委託外面的偵探社。</p>
+    <p>你們說出「鍾學長」的時候，小林鬆了一口氣：「還好，我找的是外人。」</p>
+  </div></div>
+  <div class="answer"><label>回到教室之後，一起聊聊</label>
+    <ol style="margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;color:var(--muted)">
+      <li>卡最久的時候，你們是大家盯著同一份資料，還是分頭找線索？哪種方式比較有效？</li>
+      <li>有沒有人提出的想法一開始沒被採納，後來才發現是對的？當時為什麼沒人聽進去？</li>
+      <li>最後一關，你們一開始懷疑誰？是哪一份證物讓你們改變想法？</li>
+      <li>有沒有哪一次你們以為想通了，結果答錯？當時漏看了什麼，或哪一步推得太快？</li>
+      <li>今天在遊戲裡發現的事，平常做小組報告或討論時也會發生嗎？下次你會怎麼做？</li>
+    </ol></div>
+  ${footHTML()}`;
+  wireReset();wireNav();
+}
+
+/* ---------- lock 2 puzzle ---------- */
+const NS="http://www.w3.org/2000/svg";
+const PC={};GEO.pieces.forEach(p=>PC[p.id]=p);
+const rad=d=>d*Math.PI/180;
+const rot=(x,y,d)=>{const c=Math.cos(rad(d)),s=Math.sin(rad(d));return[x*c-y*s,x*s+y*c]};
+const mod=(a,m)=>((a%m)+m)%m;
+function freshPz(){const st={};for(const k in START){const[x,y,th]=START[k];st[k]={x,y,th,g:k}}return st}
+function world(id,P){const pc=PC[id];return pc.poly.map(([vx,vy])=>{const[rx,ry]=rot(vx-pc.c[0],vy-pc.c[1],P.th);return[P.x+rx,P.y+ry]})}
+function members(g){return Object.keys(S.pz).filter(k=>S.pz[k].g===g)}
+function frameAngle(ids){const n=ids.find(k=>k!=="yellow");return n?S.pz[n].th:S.pz[ids[0]].th}
+
+function initPuzzle(){
+  if(!S.pz){S.pz=freshPz();save()}
+  const svg=$("#board");
+  let h=`<rect x="${SX}" y="0" width="${GEO.W}" height="${GEO.H}" fill="#f7f2e6" stroke="#9aa3b0" stroke-width="0.008"/>`;
+  for(const[x,y,c]of GEO.pts)h+=`<text x="${(x+SX).toFixed(4)}" y="${(y+0.045).toFixed(4)}" text-anchor="middle" font-size="0.13" font-weight="700" font-family="JetBrains Mono, monospace" fill="#2b3340">${c}</text>`;
+  h+=`<g id="pl"></g>`;
+  svg.innerHTML=h;
+  const pl=$("#pl",svg);
+  for(const k in PC){const p=document.createElementNS(NS,"polygon");p.classList.add("piece");p.dataset.k=k;p.setAttribute("fill",PC[k].color);p.setAttribute("stroke","#141a22");p.setAttribute("stroke-width","0.008");p.setAttribute("stroke-linejoin","round");pl.appendChild(p)}
+  draw();
+  $("#pzReset").onclick=()=>{S.pz=freshPz();save();draw()};
+
+  let drag=null;
+  const pt=e=>{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+  svg.onpointerdown=e=>{
+    const el=e.target.closest(".piece");if(!el)return;
+    const k=el.dataset.k,ids=members(S.pz[k].g),p=pt(e);
+    drag={k,ids,sx:p.x,sy:p.y,start:ids.map(i=>[S.pz[i].x,S.pz[i].y]),moved:false,id:e.pointerId};
+    ids.forEach(i=>pl.appendChild(pl.querySelector(`[data-k="${i}"]`)));
+    svg.setPointerCapture(e.pointerId);e.preventDefault();
+  };
+  svg.onpointermove=e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    const p=pt(e),dx=p.x-drag.sx,dy=p.y-drag.sy;
+    if(Math.hypot(dx,dy)>0.02)drag.moved=true;
+    if(drag.moved){drag.ids.forEach((i,n)=>{S.pz[i].x=drag.start[n][0]+dx;S.pz[i].y=drag.start[n][1]+dy});draw()}
+  };
+  const end=e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    const ids=drag.ids;
+    if(!drag.moved){ // rotate group 30° around its centre
+      const cx=ids.reduce((a,i)=>a+S.pz[i].x,0)/ids.length,cy=ids.reduce((a,i)=>a+S.pz[i].y,0)/ids.length;
+      ids.forEach(i=>{const P=S.pz[i];const[rx,ry]=rot(P.x-cx,P.y-cy,30);P.x=cx+rx;P.y=cy+ry;P.th=mod(P.th+30,360)});
+    }
+    snap(ids);
+    drag=null;save();draw();
+  };
+  svg.onpointerup=end;svg.onpointercancel=end;
+}
+
+function snap(ids){
+  // join with other pieces when close to their assembled relative pose
+  let joined=true,guard=0;
+  while(joined&&guard++<6){
+    joined=false;
+    const g=S.pz[ids[0]].g;
+    outer: for(const i of ids)for(const j of Object.keys(S.pz)){
+      if(S.pz[j].g===g)continue;
+      const Pi=S.pz[i],Pj=S.pz[j];
+      let F;
+      if(i!=="yellow"&&j!=="yellow"){if(mod(Pi.th-Pj.th,360)!==0)continue;F=Pj.th}
+      else if(i==="yellow"&&j!=="yellow"){if(mod(Pi.th-Pj.th,120)!==0)continue;F=Pj.th}
+      else if(j==="yellow"&&i!=="yellow"){if(mod(Pj.th-Pi.th,120)!==0)continue;F=Pi.th}
+      else continue;
+      const[rx,ry]=rot(PC[i].c[0]-PC[j].c[0],PC[i].c[1]-PC[j].c[1],F);
+      const tx=Pj.x+rx,ty=Pj.y+ry,dx=tx-Pi.x,dy=ty-Pi.y;
+      if(Math.hypot(dx,dy)<0.09){
+        ids.forEach(m=>{S.pz[m].x+=dx;S.pz[m].y+=dy});
+        const og=Pj.g;Object.keys(S.pz).forEach(m=>{if(S.pz[m].g===og)S.pz[m].g=g});
+        ids=members(g);
+        const FA=frameAngle(ids);if(S.pz.yellow.g===g)S.pz.yellow.th=FA;
+        joined=true;break outer;
+      }
+    }
+  }
+  const all=members(S.pz[ids[0]].g);
+  if(all.length===5){ // assembled: snap the window apex row onto the nearest digit
+    const F=frameAngle(all);
+    if(mod(F,60)===0){
+      const Y=S.pz.yellow,[rx,ry]=rot(GEO.P1[0]-PC.yellow.c[0],GEO.P1[1]-PC.yellow.c[1],F);
+      const px=Y.x+rx-SX,py=Y.y+ry;
+      let best=null;for(const[x,y]of GEO.pts){const d=Math.hypot(x-px,y-py);if(!best||d<best[0])best=[d,x-px,y-py]}
+      if(best&&best[0]<0.07)all.forEach(m=>{S.pz[m].x+=best[1];S.pz[m].y+=best[2]});
+    }
+  }
+}
+
+function draw(){
+  const svg=$("#board");if(!svg)return;
+  svg.querySelectorAll(".piece").forEach(el=>{const k=el.dataset.k;el.setAttribute("points",world(k,S.pz[k]).map(p=>p[0].toFixed(4)+","+p[1].toFixed(4)).join(" "))});
+}
+
+/* boot */
+function start(data){const v=(data&&data.screen)?data:load();if(v)S=Object.assign(blank(),v);render()}
+window.claude?.hot?.snapshot?.(()=>S);
+window.claude?.hot?.ready?window.claude.hot.ready(start):start(window.claude?.hot?.data??{});
+})();
+</script>
+
+</body></html>
